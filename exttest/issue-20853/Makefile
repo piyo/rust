@@ -12,6 +12,11 @@ testrun: $(PROG)
 		./$(PROG) n ; if [ $$? -eq 0 ] ; then echo "OK" ; else echo "NG" ; pass=n ; fi ; \
 		if [ "$$pass" = "y" ] ; then exit 0 ; else exit 1 ; fi )
 
+## show environment variables
+.PHONY: testrunenvverbose
+testrunenvverbose: export ENV_VERBOSE=1
+testrunenvverbose: testrun
+
 $(PROG): main.c Makefile
 	$(CC) -Wall $< -o $(PROG)
 

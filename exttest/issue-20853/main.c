@@ -25,6 +25,7 @@
 #include <sys/resource.h>
 
 void create_new_env( char* additions[], char*** final_env );
+void env_verbose( char** env );
 
 int main(int argc, char *argv[])
 {
@@ -62,6 +63,9 @@ int main(int argc, char *argv[])
     char *new_env[] = { "RUST_BACKTRACE=1", NULL };
     char** final_env = NULL;
     create_new_env( new_env, &final_env );
+    if (getenv("ENV_VERBOSE") != NULL) {
+      env_verbose( final_env );
+    }
     execve(exe, new_argv, final_env);
     if (final_env != NULL) {
       free(final_env);
@@ -96,4 +100,14 @@ void create_new_env( char* addl_env[], char*** final_env )
         (*final_env)[k] = src_env[srci];
       }
     }
+}
+
+void env_verbose( char** env ) {
+  char** it = env;
+  int ii = 0;
+  while (*it) {
+    printf("env[%d] = %s\n", ii, *it);
+    ++ii;
+    ++it;
+  }
 }
