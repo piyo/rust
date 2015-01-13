@@ -59,6 +59,11 @@ int main(int argc, char *argv[])
 
     const char* const RUSTC_BIN_DEFAULT = "/usr/local/bin/rustc";
     const char* exe = (char* const) RUSTC_BIN_DEFAULT;
+    const char* RUSTC_BIN = "RUSTC_BIN";
+    if (getenv(RUSTC_BIN) != NULL) {
+      exe = getenv(RUSTC_BIN);
+    }
+    printf("rustc bin: %s\n", exe);
     char *new_argv[] = { (char* const)exe, "--version", "--verbose", NULL };
     char *new_env[] = { "RUST_BACKTRACE=1", NULL };
     char** final_env = NULL;
