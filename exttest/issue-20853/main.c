@@ -24,6 +24,8 @@
 #include <unistd.h>
 #include <sys/resource.h>
 
+void create_new_env( char* additions[], char*** final_env );
+
 int main(int argc, char *argv[])
 {
     struct rlimit old = {0};
@@ -54,10 +56,44 @@ int main(int argc, char *argv[])
     printf("Is RLIMIT_STACK 4KB page-aligned? %s\n",
            (new.rlim_cur % 4096 == 0) ? "Yes": "NO!");
 
-    char *exe = "/usr/local/bin/rustc";
-    char *newargv[] = { exe, "--version", "--verbose", NULL };
-    char *newenv[] = { "RUST_BACKTRACE=1", NULL };
-    execve(exe, newargv, newenv);
-
+    const char* const RUSTC_BIN_DEFAULT = "/usr/local/bin/rustc";
+    const char* exe = (char* const) RUSTC_BIN_DEFAULT;
+    char *new_argv[] = { (char* const)exe, "--version", "--verbose", NULL };
+    char *new_env[] = { "RUST_BACKTRACE=1", NULL };
+    char** final_env = NULL;
+    create_new_env( new_env, &final_env );
+    execve(exe, new_argv, final_env);
+    if (final_env != NULL) {
+      free(final_env);
+    }
     exit(EXIT_FAILURE);
+}
+
+
+void create_new_env( char* addl_env[], char*** final_env )
+{
+    extern char **environ; /* see environ(7) */
+    size_t i,j;
+
+    for (i=0; environ[i] != NULL; ++i) {
+      /* do nothing additional */
+    }
+    for (j=0; addl_env[j] != NULL; ++j) {
+      /* do nothing additional */
+    }
+    const size_t kFINAL_SIZE = i+j;
+    if (final_env != NULL) {
+      (*final_env) = malloc(sizeof(char*) * (kFINAL_SIZE+1));
+      (*final_env)[kFINAL_SIZE] = NULL;
+      size_t k;
+      for (k = 0; k < kFINAL_SIZE+1; ++k) {
+        size_t srci = k;
+        char** src_env = environ;
+        if (k >= i) {
+          srci = k - i;
+          src_env = addl_env;
+        }
+        (*final_env)[k] = src_env[srci];
+      }
+    }
 }
