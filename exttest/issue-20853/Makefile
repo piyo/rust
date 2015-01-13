@@ -15,5 +15,6 @@ testrun: $(PROG)
 $(PROG): main.c Makefile
 	$(CC) -Wall $< -o $(PROG)
 
+.PHONY: clean
 clean:
 	rm $(PROG)
